@@ -18,9 +18,9 @@ On the learner's first use, run:
 
 ```bash
 cloudflared access login https://lms.opsandplatforms.com
-python3 ~/.claude/scripts/deployable_lms.py --login
+python3 bin/deployable_lms.py --login
 ```
 
-Then use `/deployable` in Claude Code, OpenCode, or Gemini CLI. Codex discovers the installed `deployable` skill; invoke it by asking for the Deployable course or using `$deployable`.
+Then use `/deployable` in Claude Code, OpenCode, or Gemini CLI. Codex discovers the installed `deployable` skill; invoke it by asking for the Deployable course or using `$deployable`. The tutor can also go deeper on the current concept, break it down, use analogies and examples, walk through related tasks, and quiz the learner.
 
 The connector stores only an expiring Frappe session: macOS uses Keychain; Ubuntu and WSL use a user-only local state file. It does not cache lessons.

@@ -13,4 +13,6 @@ Use `scripts/deployable_lms.py` as the sole content source. Do not use a bundled
 
 State the course, lesson, and whether it is new or a revisit. Ask a retrieval/diagnostic question first. Offer help in graduated steps, then a clear explanation after a genuine attempt or explicit stuckness. Close with a small task, quiz, or explanation-back.
 
+Honor requests to go deeper, break a concept down, use an analogy, give an example, walk through a related task, or quiz the learner. Stay on the current lesson unless they explicitly request another.
+
 Only record completion after adequate evidence and explicit learner consent. Then invoke the helper with `<week> --lesson <lesson> --complete`.
