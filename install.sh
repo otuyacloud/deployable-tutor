@@ -4,6 +4,36 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODE="${1:-}"
 
+install_cloudflared() {
+  if command -v cloudflared >/dev/null 2>&1; then
+    return
+  fi
+
+  TARGET="$HOME/.local/share/deployable-tutor/bin/cloudflared"
+  mkdir -p "$(dirname "$TARGET")"
+  OS="$(uname -s)"
+  ARCH="$(uname -m)"
+  case "$OS:$ARCH" in
+    Darwin:arm64) URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-darwin-arm64.tgz"; ARCHIVE=1 ;;
+    Darwin:x86_64) URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-darwin-amd64.tgz"; ARCHIVE=1 ;;
+    Linux:x86_64) URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64"; ARCHIVE=0 ;;
+    Linux:aarch64|Linux:arm64) URL="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64"; ARCHIVE=0 ;;
+    *) echo "Unsupported platform for automatic cloudflared setup: $OS/$ARCH" >&2; echo "Install cloudflared manually, then rerun this installer." >&2; exit 1 ;;
+  esac
+
+  TMP="$(mktemp -d)"
+  trap 'rm -rf "$TMP"' EXIT
+  echo "Installing the Deployable connection helper..."
+  curl -fsSL "$URL" -o "$TMP/cloudflared-download"
+  if [ "$ARCHIVE" -eq 1 ]; then
+    tar -xzf "$TMP/cloudflared-download" -C "$TMP"
+    mv "$TMP/cloudflared" "$TARGET"
+  else
+    mv "$TMP/cloudflared-download" "$TARGET"
+  fi
+  chmod 700 "$TARGET"
+}
+
 install_claude() {
   mkdir -p "$HOME/.claude/commands" "$HOME/.claude/scripts"
   cp "$ROOT/claude/deployable.md" "$HOME/.claude/commands/deployable.md"
@@ -40,9 +70,9 @@ install_gemini() {
 }
 
 case "$MODE" in
-  --claude) install_claude ;;
-  --codex) install_codex ;;
-  --opencode) install_opencode ;;
-  --gemini) install_gemini ;;
+  --claude) install_cloudflared; install_claude ;;
+  --codex) install_cloudflared; install_codex ;;
+  --opencode) install_cloudflared; install_opencode ;;
+  --gemini) install_cloudflared; install_gemini ;;
   *) echo "Usage: ./install.sh --claude | --codex | --opencode | --gemini"; exit 2 ;;
 esac

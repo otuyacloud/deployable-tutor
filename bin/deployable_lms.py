@@ -14,6 +14,7 @@ from urllib.parse import urlencode
 
 COURSE = "devops-bootcamp-deployable"
 SERVICE = "opsandplatforms-deployable-lms-session"
+LOCAL_CLOUDFLARED = Path.home() / ".local" / "share" / "deployable-tutor" / "bin" / "cloudflared"
 
 
 def is_macos() -> bool:
@@ -48,8 +49,15 @@ def load_session(cookies: Path) -> bool:
         return False
 
 
+def cloudflared_command() -> str:
+    """Prefer the user-local binary installed by install.sh, then PATH."""
+    if LOCAL_CLOUDFLARED.exists() and os.access(LOCAL_CLOUDFLARED, os.X_OK):
+        return str(LOCAL_CLOUDFLARED)
+    return "cloudflared"
+
+
 def request(base_url: str, path: str, cookies: Path, data: dict | None = None) -> dict:
-    command = ["cloudflared", "access", "curl", f"{base_url.rstrip('/')}{path}", "--silent", "--show-error", "--cookie", str(cookies), "--cookie-jar", str(cookies)]
+    command = [cloudflared_command(), "access", "curl", f"{base_url.rstrip('/')}{path}", "--silent", "--show-error", "--cookie", str(cookies), "--cookie-jar", str(cookies)]
     if data is not None:
         command.extend(["--request", "POST", "--data", urlencode(data)])
     result = subprocess.run(command, check=True, capture_output=True, text=True, timeout=30)
@@ -90,6 +98,7 @@ def main() -> int:
     cookies = Path(temp_path)
     try:
         if args.login:
+            subprocess.run([cloudflared_command(), "access", "login", args.base_url], check=True)
             email = input("LMS email: ").strip()
             password = getpass.getpass("LMS password: ")
             login = request(args.base_url, "/api/method/login", cookies, {"usr": email, "pwd": password})
