@@ -11,7 +11,7 @@ Prerequisite: install [cloudflared](https://developers.cloudflare.com/cloudflare
 ```bash
 git clone https://github.com/otuyacloud/deployable-tutor.git
 cd deployable-tutor
-./install.sh --claude  # or --codex
+./install.sh --claude  # or --codex / --opencode
 ```
 
 On the learner's first use, run:
@@ -21,6 +21,6 @@ cloudflared access login https://lms.opsandplatforms.com
 python3 ~/.claude/scripts/deployable_lms.py --login
 ```
 
-Then use `/deployable` in Claude Code. Codex discovers the installed `deployable` skill.
+Then use `/deployable` in Claude Code or OpenCode. Codex discovers the installed `deployable` skill; invoke it by asking for the Deployable course or using `$deployable`.
 
 The connector stores only an expiring Frappe session: macOS uses Keychain; Ubuntu and WSL use a user-only local state file. It does not cache lessons.

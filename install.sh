@@ -21,8 +21,18 @@ install_codex() {
   echo "Installed the deployable skill for Codex."
 }
 
+install_opencode() {
+  TARGET="$HOME/.config/opencode"
+  mkdir -p "$TARGET/commands" "$TARGET/scripts"
+  cp "$ROOT/opencode/deployable.md" "$TARGET/commands/deployable.md"
+  cp "$ROOT/bin/deployable_lms.py" "$TARGET/scripts/deployable_lms.py"
+  chmod 700 "$TARGET/scripts/deployable_lms.py"
+  echo "Installed /deployable for OpenCode."
+}
+
 case "$MODE" in
   --claude) install_claude ;;
   --codex) install_codex ;;
-  *) echo "Usage: ./install.sh --claude | --codex"; exit 2 ;;
+  --opencode) install_opencode ;;
+  *) echo "Usage: ./install.sh --claude | --codex | --opencode"; exit 2 ;;
 esac
