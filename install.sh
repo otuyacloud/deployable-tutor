@@ -30,9 +30,19 @@ install_opencode() {
   echo "Installed /deployable for OpenCode."
 }
 
+install_gemini() {
+  TARGET="$HOME/.gemini"
+  mkdir -p "$TARGET/commands" "$TARGET/scripts"
+  cp "$ROOT/gemini/deployable.toml" "$TARGET/commands/deployable.toml"
+  cp "$ROOT/bin/deployable_lms.py" "$TARGET/scripts/deployable_lms.py"
+  chmod 700 "$TARGET/scripts/deployable_lms.py"
+  echo "Installed /deployable for Gemini CLI."
+}
+
 case "$MODE" in
   --claude) install_claude ;;
   --codex) install_codex ;;
   --opencode) install_opencode ;;
-  *) echo "Usage: ./install.sh --claude | --codex | --opencode"; exit 2 ;;
+  --gemini) install_gemini ;;
+  *) echo "Usage: ./install.sh --claude | --codex | --opencode | --gemini"; exit 2 ;;
 esac
