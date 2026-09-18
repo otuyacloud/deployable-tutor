@@ -102,7 +102,9 @@ def main() -> int:
             email = input("LMS email: ").strip()
             password = getpass.getpass("LMS password: ")
             login = request(args.base_url, "/api/method/login", cookies, {"usr": email, "pwd": password})
-            if login.get("message") != "Logged In":
+            # Website Users may authenticate successfully with Frappe's "No App"
+            # response because they have no Desk app. They can still use LMS portal APIs.
+            if login.get("message") not in ("Logged In", "No App"):
                 print("LMS login was not accepted.", file=sys.stderr)
                 return 3
             save_session(cookies)
