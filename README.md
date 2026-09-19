@@ -22,7 +22,7 @@ python3 bin/deployable_lms.py --login
 
 The connector opens the Cloudflare Access login flow, then asks for the learner's Frappe LMS email and password. The browser authentication is the one unavoidable step: it proves that this learner is allowed to use the course.
 
-Then use `/deployable` in Claude Code, OpenCode, or Gemini CLI. Codex discovers the installed `deployable` skill; invoke it by asking for the Deployable course or using `$deployable`. The tutor can also go deeper on the current concept, break it down, use analogies and examples, walk through related tasks, and quiz the learner.
+Then use `/deployable` in Claude Code, OpenCode, or Gemini CLI. Codex discovers the installed `deployable` skill; invoke it by asking for the Deployable course or using `$deployable`. The tutor acts as a lesson companion: it retrieves the existing LMS lesson, follows it from top to bottom, pauses for exercises and checkpoints, and helps without creating a separate curriculum.
 
 The connector stores only an expiring Frappe session: macOS uses Keychain; Ubuntu and WSL use a user-only local state file. It does not cache lessons.
 
