@@ -25,3 +25,7 @@ The connector opens the Cloudflare Access login flow, then asks for the learner'
 Then use `/deployable` in Claude Code, OpenCode, or Gemini CLI. Codex discovers the installed `deployable` skill; invoke it by asking for the Deployable course or using `$deployable`. The tutor can also go deeper on the current concept, break it down, use analogies and examples, walk through related tasks, and quiz the learner.
 
 The connector stores only an expiring Frappe session: macOS uses Keychain; Ubuntu and WSL use a user-only local state file. It does not cache lessons.
+
+## Course navigation
+
+Week 0 is a readiness track: terminal, account, and learning-system setup before instructional Week 1. Ask the tutor to “start the course” and it will guide the next incomplete lesson, including Week 0 when appropriate. Ask for “Week 4 overview” (or any Week 0–14 overview) to get the live lesson map before choosing a lesson; an overview does not change progress.

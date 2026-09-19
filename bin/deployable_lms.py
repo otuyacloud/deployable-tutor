@@ -10,11 +10,12 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 COURSE = "devops-bootcamp-deployable"
 SERVICE = "opsandplatforms-deployable-lms-session"
 LOCAL_CLOUDFLARED = Path.home() / ".local" / "share" / "deployable-tutor" / "bin" / "cloudflared"
+LMS_HOST = "lms.opsandplatforms.com"
 
 
 def is_macos() -> bool:
@@ -56,6 +57,14 @@ def cloudflared_command() -> str:
     return "cloudflared"
 
 
+def validate_base_url(base_url: str) -> str:
+    """Prevent a learner session cookie from being sent to an arbitrary host."""
+    parsed = urlparse(base_url)
+    if parsed.scheme != "https" or parsed.hostname != LMS_HOST or parsed.path not in ("", "/"):
+        raise ValueError(f"The Deployable connector only supports https://{LMS_HOST}.")
+    return f"https://{LMS_HOST}"
+
+
 def request(base_url: str, path: str, cookies: Path, data: dict | None = None) -> dict:
     command = [cloudflared_command(), "access", "curl", f"{base_url.rstrip('/')}{path}", "--silent", "--show-error", "--cookie", str(cookies), "--cookie-jar", str(cookies)]
     if data is not None:
@@ -64,11 +73,16 @@ def request(base_url: str, path: str, cookies: Path, data: dict | None = None) -
     return json.loads(result.stdout)
 
 
-def next_position(base_url: str, cookies: Path) -> tuple[int, int] | None:
+def course_outline(base_url: str, cookies: Path) -> list[dict]:
     path = "/api/method/lms.lms.utils.get_course_outline?" + urlencode({"course": COURSE, "progress": 1})
     outline = request(base_url, path, cookies).get("message")
     if not outline:
         raise RuntimeError("The LMS session did not return this course outline.")
+    return outline
+
+
+def next_position(base_url: str, cookies: Path) -> tuple[int, int] | None:
+    outline = course_outline(base_url, cookies)
     for chapter in outline:
         for lesson in chapter.get("lessons", []):
             if not lesson.get("is_complete"):
@@ -77,21 +91,40 @@ def next_position(base_url: str, cookies: Path) -> tuple[int, int] | None:
     return None
 
 
+def render_overview(outline: list[dict], week: int) -> str:
+    chapter = next((item for item in outline if str(item.get("number")) == str(week)), None)
+    if chapter is None:
+        raise RuntimeError(f"Week {week} was not found in this course outline.")
+    title = chapter.get("title") or f"Week {week}"
+    lines = [f"# Week {week} overview: {title}", "", "## Lessons"]
+    for lesson in chapter.get("lessons", []):
+        status = "complete" if lesson.get("is_complete") else "not complete"
+        lines.append(f"- Lesson {lesson.get('number', '?')}: {lesson.get('title', 'Untitled')} ({status})")
+    return "\n".join(lines)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Deployable LMS lesson connector.")
-    parser.add_argument("week", type=int, nargs="?", choices=range(1, 15))
+    parser.add_argument("week", type=int, nargs="?", choices=range(0, 15))
     parser.add_argument("--lesson", type=int, default=1)
     parser.add_argument("--next", action="store_true")
+    parser.add_argument("--overview", action="store_true", help="Show a live week map; requires a week.")
     parser.add_argument("--complete", action="store_true")
     parser.add_argument("--login", action="store_true")
     parser.add_argument("--base-url", default="https://lms.opsandplatforms.com")
     args = parser.parse_args()
-    if args.login and (args.week is not None or args.next or args.complete):
+    try:
+        args.base_url = validate_base_url(args.base_url)
+    except ValueError as error:
+        parser.error(str(error))
+    if args.login and (args.week is not None or args.next or args.overview or args.complete):
         parser.error("--login cannot be combined with lesson actions")
-    if args.next and (args.week is not None or args.complete):
-        parser.error("--next cannot be combined with a week or --complete")
+    if args.next and (args.week is not None or args.overview or args.complete):
+        parser.error("--next cannot be combined with a week, --overview, or --complete")
+    if args.overview and (args.week is None or args.complete):
+        parser.error("--overview requires a week and cannot be combined with --complete")
     if not args.login and not args.next and args.week is None:
-        parser.error("provide a week, --next, or --login")
+        parser.error("provide a week, --next, --overview, or --login")
 
     descriptor, temp_path = tempfile.mkstemp(prefix="deployable-lms-", suffix=".cookies")
     os.close(descriptor)
@@ -119,6 +152,10 @@ def main() -> int:
                 print("All course lessons are complete.")
                 return 0
             args.week, args.lesson = position
+        if args.overview:
+            print(render_overview(course_outline(args.base_url, cookies), args.week))
+            save_session(cookies)
+            return 0
         if args.complete:
             request(args.base_url, "/api/method/lms.lms.api.mark_lesson_progress", cookies, {"course": COURSE, "chapter_number": args.week, "lesson_number": args.lesson})
             save_session(cookies)
