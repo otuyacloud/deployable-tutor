@@ -28,4 +28,4 @@ The connector stores only an expiring Frappe session: macOS uses Keychain; Ubunt
 
 ## Course navigation
 
-Week 0 is a readiness track: terminal, account, and learning-system setup before instructional Week 1. Ask the tutor to “start the course” and it will guide the next incomplete lesson, including Week 0 when appropriate. Ask for “Week 4 overview” (or any Week 0–14 overview) to get the live lesson map before choosing a lesson; an overview does not change progress.
+Week 0 is a readiness track: terminal, account, and learning-system setup before instructional Week 1. Ask the tutor to “start the course” and it will guide the next incomplete lesson, including Week 0 when appropriate. Ask for “Week 4 overview” (or any Week 0–14 overview) to open that week's actual first lesson: its overview and learning objectives. It is a normal lesson and changes progress only after evidence and the learner's explicit consent.

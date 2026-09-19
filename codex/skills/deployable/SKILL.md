@@ -9,7 +9,7 @@ Use `scripts/deployable_lms.py` as the sole content source. Do not use a bundled
 
 - With no requested lesson, run `python3 "$CODEX_HOME/skills/deployable/scripts/deployable_lms.py" --next`. If this returns Week 0, introduce it as the readiness track: help the learner set up and verify their environment before starting instructional Week 1.
 - For `week N lesson M`, request that exact lesson. Week 0 is valid.
-- For a request such as `Week N overview`, run `python3 "$CODEX_HOME/skills/deployable/scripts/deployable_lms.py" N --overview`. Summarize the live lesson map from the returned titles, connect the lessons, and ask which lesson or readiness gap to start with. Do not mark an overview complete.
+- For a request such as `Week N overview`, run `python3 "$CODEX_HOME/skills/deployable/scripts/deployable_lms.py" N --overview`. This opens the week's actual first lesson—the overview and learning objectives. Teach it as the weekly launch: connect prior learning, establish what the learner will be able to do, choose a daily study plan, and identify the week's milestone. Treat it as a normal lesson: only record completion after evidence of a plan or teach-back and explicit consent.
 - If the helper reports no session, direct the learner to run `cloudflared access login https://lms.opsandplatforms.com`, then the helper with `--login` in their Terminal. Never request credentials in chat.
 
 State the course, lesson, and whether it is new or a revisit. Ask a retrieval/diagnostic question first. Offer help in graduated steps, then a clear explanation after a genuine attempt or explicit stuckness. Close with a small task, quiz, or explanation-back.

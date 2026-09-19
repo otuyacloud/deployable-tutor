@@ -91,24 +91,12 @@ def next_position(base_url: str, cookies: Path) -> tuple[int, int] | None:
     return None
 
 
-def render_overview(outline: list[dict], week: int) -> str:
-    chapter = next((item for item in outline if str(item.get("number")) == str(week)), None)
-    if chapter is None:
-        raise RuntimeError(f"Week {week} was not found in this course outline.")
-    title = chapter.get("title") or f"Week {week}"
-    lines = [f"# Week {week} overview: {title}", "", "## Lessons"]
-    for lesson in chapter.get("lessons", []):
-        status = "complete" if lesson.get("is_complete") else "not complete"
-        lines.append(f"- Lesson {lesson.get('number', '?')}: {lesson.get('title', 'Untitled')} ({status})")
-    return "\n".join(lines)
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description="Deployable LMS lesson connector.")
     parser.add_argument("week", type=int, nargs="?", choices=range(0, 15))
     parser.add_argument("--lesson", type=int, default=1)
     parser.add_argument("--next", action="store_true")
-    parser.add_argument("--overview", action="store_true", help="Show a live week map; requires a week.")
+    parser.add_argument("--overview", action="store_true", help="Open a week's first overview lesson; requires a week.")
     parser.add_argument("--complete", action="store_true")
     parser.add_argument("--login", action="store_true")
     parser.add_argument("--base-url", default="https://lms.opsandplatforms.com")
@@ -153,9 +141,7 @@ def main() -> int:
                 return 0
             args.week, args.lesson = position
         if args.overview:
-            print(render_overview(course_outline(args.base_url, cookies), args.week))
-            save_session(cookies)
-            return 0
+            args.lesson = 1
         if args.complete:
             request(args.base_url, "/api/method/lms.lms.api.mark_lesson_progress", cookies, {"course": COURSE, "chapter_number": args.week, "lesson_number": args.lesson})
             save_session(cookies)
