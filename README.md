@@ -24,6 +24,8 @@ The connector opens the Cloudflare Access login flow, then asks for the learner'
 
 Then use `/deployable` in Claude Code, OpenCode, or Gemini CLI. Codex discovers the installed `deployable` skill; invoke it by asking for the Deployable course or using `$deployable`. The tutor acts as a lesson companion: it retrieves the existing LMS lesson, follows it from top to bottom, pauses for exercises and checkpoints, and helps without creating a separate curriculum.
 
+When a lesson produces files, the tutor uses an existing student coursework workspace or creates `$HOME/deployable-coursework`. It creates week directories only as they are needed, keeps coursework separate from this connector repository, and validates the learner's actual files and command output against the LMS checkpoint. Frappe remains the source of truth for lessons and completion.
+
 The connector stores only an expiring Frappe session: macOS uses Keychain; Ubuntu and WSL use a user-only local state file. It does not cache lessons.
 
 ## Course navigation
