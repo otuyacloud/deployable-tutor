@@ -18,6 +18,18 @@ LOCAL_CLOUDFLARED = Path.home() / ".local" / "share" / "deployable-tutor" / "bin
 LMS_HOST = "lms.opsandplatforms.com"
 
 
+def week_to_chapter(week: int) -> int:
+    """Translate the course's Week 0-based numbering to Frappe's 1-based chapters."""
+    return week + 1
+
+
+def chapter_to_week(chapter: int) -> int:
+    """Translate a Frappe chapter number to the course's Week 0-based numbering."""
+    if chapter < 1:
+        raise ValueError("Frappe chapter numbers must start at 1.")
+    return chapter - 1
+
+
 def is_macos() -> bool:
     return sys.platform == "darwin"
 
@@ -86,8 +98,8 @@ def next_position(base_url: str, cookies: Path) -> tuple[int, int] | None:
     for chapter in outline:
         for lesson in chapter.get("lessons", []):
             if not lesson.get("is_complete"):
-                week, number = lesson["number"].split("-", maxsplit=1)
-                return int(week), int(number)
+                chapter_number, lesson_number = lesson["number"].split("-", maxsplit=1)
+                return chapter_to_week(int(chapter_number)), int(lesson_number)
     return None
 
 
@@ -143,11 +155,11 @@ def main() -> int:
         if args.overview:
             args.lesson = 1
         if args.complete:
-            request(args.base_url, "/api/method/lms.lms.api.mark_lesson_progress", cookies, {"course": COURSE, "chapter_number": args.week, "lesson_number": args.lesson})
+            request(args.base_url, "/api/method/lms.lms.api.mark_lesson_progress", cookies, {"course": COURSE, "chapter_number": week_to_chapter(args.week), "lesson_number": args.lesson})
             save_session(cookies)
             print(f"Marked Week {args.week}, Lesson {args.lesson} complete in the LMS.")
             return 0
-        path = "/api/method/lms.lms.utils.get_lesson?" + urlencode({"course": COURSE, "chapter": args.week, "lesson": args.lesson})
+        path = "/api/method/lms.lms.utils.get_lesson?" + urlencode({"course": COURSE, "chapter": week_to_chapter(args.week), "lesson": args.lesson})
         lesson = request(args.base_url, path, cookies).get("message") or {}
         save_session(cookies)
         body = lesson.get("body") or lesson.get("content")
