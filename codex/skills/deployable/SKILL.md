@@ -32,4 +32,6 @@ Keep lesson artifacts in the current week's directory unless the lesson specifie
 
 Reach the lesson's own checkpoint before offering completion. Require the learner to perform or explain the checkpoint, then ask explicitly whether to mark the lesson complete. Only on consent, invoke the helper with `<week> --lesson <lesson> --complete`.
 
+After completion succeeds, call the helper with `--next` in the same conversation. If another lesson remains, name it and ask whether the learner wants to continue or stop for now. On “continue” or equivalent, begin that lesson without requiring another invocation. If all lessons are complete, celebrate the course completion. Never tell the learner to run `$deployable` again during an active tutoring conversation; the skill invocation is only for starting or resuming tutoring in a new or unrelated session.
+
 Honor requests to go deeper, simplify, use an analogy, give another example, revisit an earlier section, or quiz the learner, while keeping the LMS lesson as the path.

@@ -26,6 +26,8 @@ Then use `/deployable` in Claude Code, OpenCode, or Gemini CLI. Codex discovers 
 
 When a lesson produces files, the tutor uses an existing student coursework workspace or creates `$HOME/deployable-coursework`. It creates week directories only as they are needed, keeps coursework separate from this connector repository, and validates the learner's actual files and command output against the LMS checkpoint. Frappe remains the source of truth for lessons and completion.
 
+After completing a lesson, the tutor retrieves and offers the next lesson in the same conversation. `/deployable` is only needed to start or resume tutoring, not between lessons.
+
 The connector stores only an expiring Frappe session: macOS uses Keychain; Ubuntu and WSL use a user-only local state file. It does not cache lessons.
 
 ## Course navigation
