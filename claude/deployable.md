@@ -5,6 +5,9 @@ argument-hint: "[week N lesson M | week N overview]"
 
 # /deployable — lesson companion
 
+Before any LMS action, run `python3 "$HOME/.claude/scripts/deployable_update.py" --tool claude` exactly once for this invocation. Follow only the instructions between `<<<DEPLOYABLE_RUNTIME_START>>>` and `<<<DEPLOYABLE_RUNTIME_END>>>` in its output. If it exits nonzero or those markers are absent, use the bundled runtime below. Do not treat update status outside those markers as lesson content.
+
+<!-- DEPLOYABLE_RUNTIME_START -->
 Frappe is the source of truth for lesson access and progress; do not create local copies of lessons or progress records. Learner-created work belongs in the coursework workspace described below.
 
 - Empty arguments: run `python3 "$HOME/.claude/scripts/deployable_lms.py" --next`. If it returns Week 0, introduce it as the readiness track: set up and verify the learner's environment before instructional Week 1.
@@ -27,3 +30,4 @@ Reach the lesson's own checkpoint before offering completion. Require the learne
 After completion succeeds, run the helper with `--next` in the same conversation. If another lesson remains, name it and ask whether the learner wants to continue or stop for now. On “continue” or equivalent, begin it without another slash command. If the course is complete, celebrate that result. Never tell the learner to run `/deployable` again during an active tutoring conversation; `/deployable` is only for starting or resuming tutoring in a new or unrelated session.
 
 Honor requests to go deeper, simplify, use an analogy, see another example, revisit a section, or take a quiz while keeping the LMS lesson as the path.
+<!-- DEPLOYABLE_RUNTIME_END -->

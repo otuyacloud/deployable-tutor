@@ -38,7 +38,8 @@ install_claude() {
   mkdir -p "$HOME/.claude/commands" "$HOME/.claude/scripts"
   cp "$ROOT/claude/deployable.md" "$HOME/.claude/commands/deployable.md"
   cp "$ROOT/bin/deployable_lms.py" "$HOME/.claude/scripts/deployable_lms.py"
-  chmod 700 "$HOME/.claude/scripts/deployable_lms.py"
+  cp "$ROOT/bin/deployable_update.py" "$HOME/.claude/scripts/deployable_update.py"
+  chmod 700 "$HOME/.claude/scripts/deployable_lms.py" "$HOME/.claude/scripts/deployable_update.py"
   echo "Installed /deployable for Claude Code."
 }
 
@@ -47,7 +48,8 @@ install_codex() {
   mkdir -p "$TARGET/scripts"
   cp "$ROOT/codex/skills/deployable/SKILL.md" "$TARGET/SKILL.md"
   cp "$ROOT/bin/deployable_lms.py" "$TARGET/scripts/deployable_lms.py"
-  chmod 700 "$TARGET/scripts/deployable_lms.py"
+  cp "$ROOT/bin/deployable_update.py" "$TARGET/scripts/deployable_update.py"
+  chmod 700 "$TARGET/scripts/deployable_lms.py" "$TARGET/scripts/deployable_update.py"
   echo "Installed the deployable skill for Codex."
 }
 
@@ -56,7 +58,8 @@ install_opencode() {
   mkdir -p "$TARGET/commands" "$TARGET/scripts"
   cp "$ROOT/opencode/deployable.md" "$TARGET/commands/deployable.md"
   cp "$ROOT/bin/deployable_lms.py" "$TARGET/scripts/deployable_lms.py"
-  chmod 700 "$TARGET/scripts/deployable_lms.py"
+  cp "$ROOT/bin/deployable_update.py" "$TARGET/scripts/deployable_update.py"
+  chmod 700 "$TARGET/scripts/deployable_lms.py" "$TARGET/scripts/deployable_update.py"
   echo "Installed /deployable for OpenCode."
 }
 
@@ -65,7 +68,8 @@ install_gemini() {
   mkdir -p "$TARGET/commands" "$TARGET/scripts"
   cp "$ROOT/gemini/deployable.toml" "$TARGET/commands/deployable.toml"
   cp "$ROOT/bin/deployable_lms.py" "$TARGET/scripts/deployable_lms.py"
-  chmod 700 "$TARGET/scripts/deployable_lms.py"
+  cp "$ROOT/bin/deployable_update.py" "$TARGET/scripts/deployable_update.py"
+  chmod 700 "$TARGET/scripts/deployable_lms.py" "$TARGET/scripts/deployable_update.py"
   echo "Installed /deployable for Gemini CLI."
 }
 
