@@ -36,6 +36,10 @@ Existing installations need to pull and rerun `install.sh` once to receive the u
 
 For local feature-branch testing, install the branch normally and start the AI tool with `DEPLOYABLE_TUTOR_SKIP_UPDATE=1`; this exercises the branch copy without replacing it from production `main`.
 
+## Maintainer release flow
+
+`main` is the student-production branch and is protected. Make changes on a focused branch, run the test suite and a learner-like local tutor flow, then open a pull request. GitHub requires the `test` check and an up-to-date branch before the change can merge. After merging, the next tutor invocation picks up the new production version automatically.
+
 The connector stores only an expiring Frappe session: macOS uses Keychain; Ubuntu and WSL use a user-only local state file. It does not cache lessons.
 
 ## Course navigation
