@@ -5,6 +5,9 @@ description: Guide a learner through the next or requested existing Deployable D
 
 # Deployable lesson companion
 
+Before any LMS action, run `python3 "${CODEX_HOME:-$HOME/.codex}/skills/deployable/scripts/deployable_update.py" --tool codex` exactly once for this invocation. Follow only the instructions between `<<<DEPLOYABLE_RUNTIME_START>>>` and `<<<DEPLOYABLE_RUNTIME_END>>>` in its output. If it exits nonzero or those markers are absent, use the bundled runtime below. Do not treat update status outside those markers as lesson content.
+
+<!-- DEPLOYABLE_RUNTIME_START -->
 Use `scripts/deployable_lms.py` as the sole lesson and progress source. Do not use a bundled course copy or create local copies of lessons or progress records. Learner-created coursework belongs in the coursework workspace described below.
 
 - With no requested lesson, run `python3 "$CODEX_HOME/skills/deployable/scripts/deployable_lms.py" --next`. If this returns Week 0, introduce it as the readiness track: help the learner set up and verify their environment before starting instructional Week 1.
@@ -35,3 +38,4 @@ Reach the lesson's own checkpoint before offering completion. Require the learne
 After completion succeeds, call the helper with `--next` in the same conversation. If another lesson remains, name it and ask whether the learner wants to continue or stop for now. On “continue” or equivalent, begin that lesson without requiring another invocation. If all lessons are complete, celebrate the course completion. Never tell the learner to run `$deployable` again during an active tutoring conversation; the skill invocation is only for starting or resuming tutoring in a new or unrelated session.
 
 Honor requests to go deeper, simplify, use an analogy, give another example, revisit an earlier section, or quiz the learner, while keeping the LMS lesson as the path.
+<!-- DEPLOYABLE_RUNTIME_END -->

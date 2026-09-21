@@ -28,6 +28,14 @@ When a lesson produces files, the tutor uses an existing student coursework work
 
 After completing a lesson, the tutor retrieves and offers the next lesson in the same conversation. `/deployable` is only needed to start or resume tutoring, not between lessons.
 
+## Automatic updates
+
+Each new tutor invocation checks production `main` and activates validated adapter and connector changes before retrieving a lesson. If GitHub is unavailable or an update is invalid, the installed working copy is used instead. The updater preserves the previous adapter and connector for recovery and never changes LMS login state, progress, or coursework.
+
+Existing installations need to pull and rerun `install.sh` once to receive the updater. Normal tutor changes are automatic after that.
+
+For local feature-branch testing, install the branch normally and start the AI tool with `DEPLOYABLE_TUTOR_SKIP_UPDATE=1`; this exercises the branch copy without replacing it from production `main`.
+
 The connector stores only an expiring Frappe session: macOS uses Keychain; Ubuntu and WSL use a user-only local state file. It does not cache lessons.
 
 ## Course navigation
