@@ -1,5 +1,4 @@
 import sys
-import tomllib
 import unittest
 from pathlib import Path
 
@@ -22,10 +21,11 @@ class AdapterTests(unittest.TestCase):
                 self.assertIn("--complete", runtime)
                 self.assertIn("coursework workspace", runtime)
 
-    def test_gemini_adapter_is_valid_toml(self):
-        with (ROOT / "gemini" / "deployable.toml").open("rb") as handle:
-            parsed = tomllib.load(handle)
-        self.assertIn("prompt", parsed)
+    def test_agy_plugin_is_valid(self):
+        plugin = ROOT / "agy" / "plugin.json"
+        skill = ROOT / "agy" / "skills" / "deployable" / "SKILL.md"
+        self.assertTrue(plugin.is_file())
+        self.assertTrue(skill.is_file())
 
     def test_codex_skill_keeps_required_frontmatter(self):
         content = (ROOT / "codex" / "skills" / "deployable" / "SKILL.md").read_text()

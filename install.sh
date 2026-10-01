@@ -63,20 +63,21 @@ install_opencode() {
   echo "Installed /deployable for OpenCode."
 }
 
-install_gemini() {
-  TARGET="$HOME/.gemini"
-  mkdir -p "$TARGET/commands" "$TARGET/scripts"
-  cp "$ROOT/gemini/deployable.toml" "$TARGET/commands/deployable.toml"
-  cp "$ROOT/bin/deployable_lms.py" "$TARGET/scripts/deployable_lms.py"
-  cp "$ROOT/bin/deployable_update.py" "$TARGET/scripts/deployable_update.py"
-  chmod 700 "$TARGET/scripts/deployable_lms.py" "$TARGET/scripts/deployable_update.py"
-  echo "Installed /deployable for Gemini CLI."
+install_agy() {
+  TARGET="$HOME/.gemini/config/plugins/deployable"
+  mkdir -p "$TARGET/skills/deployable/scripts"
+  cp "$ROOT/agy/plugin.json" "$TARGET/plugin.json"
+  cp "$ROOT/agy/skills/deployable/SKILL.md" "$TARGET/skills/deployable/SKILL.md"
+  cp "$ROOT/bin/deployable_lms.py" "$TARGET/skills/deployable/scripts/deployable_lms.py"
+  cp "$ROOT/bin/deployable_update.py" "$TARGET/skills/deployable/scripts/deployable_update.py"
+  chmod 700 "$TARGET/skills/deployable/scripts/deployable_lms.py" "$TARGET/skills/deployable/scripts/deployable_update.py"
+  echo "Installed /deployable for agy."
 }
 
 case "$MODE" in
   --claude) install_cloudflared; install_claude ;;
   --codex) install_cloudflared; install_codex ;;
   --opencode) install_cloudflared; install_opencode ;;
-  --gemini) install_cloudflared; install_gemini ;;
-  *) echo "Usage: ./install.sh --claude | --codex | --opencode | --gemini"; exit 2 ;;
+  --agy) install_cloudflared; install_agy ;;
+  *) echo "Usage: ./install.sh --claude | --codex | --opencode | --agy"; exit 2 ;;
 esac

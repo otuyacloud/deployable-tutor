@@ -11,12 +11,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-try:
-    import tomllib
-except ModuleNotFoundError:  # Python 3.10 on Ubuntu 22.04
-    tomllib = None
-
-
 REPO_URL = "https://github.com/otuyacloud/deployable-tutor.git"
 REF = "main"
 RUNTIME_START = b"<!-- DEPLOYABLE_RUNTIME_START -->"
@@ -27,14 +21,14 @@ ADAPTER_SOURCES = {
     "claude": "claude/deployable.md",
     "codex": "codex/skills/deployable/SKILL.md",
     "opencode": "opencode/deployable.md",
-    "gemini": "gemini/deployable.toml",
+    "agy": "agy/skills/deployable/SKILL.md",
 }
 CONNECTOR_SOURCE = "bin/deployable_lms.py"
 BOOTSTRAP_COMMANDS = {
     "claude": 'python3 "$HOME/.claude/scripts/deployable_update.py" --tool claude',
     "codex": 'python3 "${CODEX_HOME:-$HOME/.codex}/skills/deployable/scripts/deployable_update.py" --tool codex',
     "opencode": 'python3 "$HOME/.config/opencode/scripts/deployable_update.py" --tool opencode',
-    "gemini": 'python3 \\"$HOME/.gemini/scripts/deployable_update.py\\" --tool gemini',
+    "agy": 'python3 "$HOME/.gemini/config/plugins/deployable/skills/deployable/scripts/deployable_update.py" --tool agy',
 }
 
 
@@ -48,9 +42,9 @@ def tool_paths(tool: str) -> tuple[Path, Path]:
     if tool == "opencode":
         root = home / ".config" / "opencode"
         return root / "commands" / "deployable.md", root / "scripts" / "deployable_lms.py"
-    if tool == "gemini":
-        root = home / ".gemini"
-        return root / "commands" / "deployable.toml", root / "scripts" / "deployable_lms.py"
+    if tool == "agy":
+        root = home / ".gemini" / "config" / "plugins" / "deployable" / "skills" / "deployable"
+        return root / "SKILL.md", root / "scripts" / "deployable_lms.py"
     raise ValueError(f"Unsupported tool: {tool}")
 
 
@@ -85,54 +79,39 @@ def validate_adapter(tool: str, adapter: bytes) -> str:
         raise ValueError("Tutor adapter has an invalid update bootstrap.")
     if OUTPUT_START not in bootstrap or OUTPUT_END not in bootstrap:
         raise ValueError("Tutor adapter bootstrap is missing output markers.")
-    if tool == "gemini":
-        lines = text.splitlines()
-        if (
-            len(lines) < 5
-            or re.fullmatch(r'description = "[^"\\]*"', lines[0]) is None
-            or lines[1] != ""
-            or lines[2] != 'prompt = """'
-            or lines[-1] != '"""'
-            or any('"""' in line for line in lines[3:-1])
-        ):
-            raise ValueError("Gemini adapter has an invalid TOML envelope.")
-        if tomllib is not None:
-            parsed = tomllib.loads(text)
-            if not isinstance(parsed.get("prompt"), str):
-                raise ValueError("Gemini adapter is missing its prompt.")
-    else:
-        if not text.startswith("---\n"):
+    if not text.startswith("---\n"):
+        raise ValueError("Markdown adapter has invalid frontmatter.")
+    end = text.find("\n---\n", 4)
+    if end == -1:
+        raise ValueError("Markdown adapter has invalid frontmatter.")
+    fields: list[tuple[str, str]] = []
+    for line in text[4:end].splitlines():
+        if not line.strip():
+            continue
+        if ":" not in line:
             raise ValueError("Markdown adapter has invalid frontmatter.")
-        end = text.find("\n---\n", 4)
-        if end == -1:
+        key, value = (part.strip() for part in line.split(":", maxsplit=1))
+        if not key or not value or any(not (character.isalnum() or character in "_-") for character in key):
             raise ValueError("Markdown adapter has invalid frontmatter.")
-        fields: list[tuple[str, str]] = []
-        for line in text[4:end].splitlines():
-            if not line.strip():
-                continue
-            if ":" not in line:
-                raise ValueError("Markdown adapter has invalid frontmatter.")
-            key, value = (part.strip() for part in line.split(":", maxsplit=1))
-            if not key or not value or any(not (character.isalnum() or character in "_-") for character in key):
-                raise ValueError("Markdown adapter has invalid frontmatter.")
-            fields.append((key, value))
-        expected_keys = {
-            "claude": ["description", "argument-hint"],
-            "codex": ["name", "description"],
-            "opencode": ["description"],
-        }[tool]
-        if [key for key, _ in fields] != expected_keys:
-            raise ValueError("Markdown adapter has unexpected frontmatter fields.")
-        values = dict(fields)
-        description = values["description"]
-        if " " not in description or re.fullmatch(r"[A-Za-z][A-Za-z0-9 .,;/()_-]*", description) is None:
-            raise ValueError("Markdown adapter description must use the supported plain-scalar form.")
-        if tool == "claude" and values["argument-hint"] != '"[week N lesson M | week N overview]"':
-            raise ValueError("Claude adapter has an invalid argument hint.")
-        if "description" not in values:
-            raise ValueError("Markdown adapter is missing its description.")
-        if tool == "codex" and values.get("name") != "deployable":
-            raise ValueError("Codex adapter is missing its skill name.")
+        fields.append((key, value))
+    expected_keys = {
+        "claude": ["description", "argument-hint"],
+        "codex": ["name", "description"],
+        "opencode": ["description"],
+        "agy": ["name", "description"],
+    }[tool]
+    if [key for key, _ in fields] != expected_keys:
+        raise ValueError("Markdown adapter has unexpected frontmatter fields.")
+    values = dict(fields)
+    description = values["description"]
+    if " " not in description or re.fullmatch(r"[A-Za-z][A-Za-z0-9 .,;/()_-]*", description) is None:
+        raise ValueError("Markdown adapter description must use the supported plain-scalar form.")
+    if tool == "claude" and values["argument-hint"] != '"[week N lesson M | week N overview]"':
+        raise ValueError("Claude adapter has an invalid argument hint.")
+    if "description" not in values:
+        raise ValueError("Markdown adapter is missing its description.")
+    if tool in {"codex", "agy"} and values.get("name") != "deployable":
+        raise ValueError(f"{tool} adapter is missing its skill name.")
     return runtime
 
 

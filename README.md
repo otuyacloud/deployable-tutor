@@ -11,7 +11,7 @@ The installer downloads a user-local copy of [cloudflared](https://developers.cl
 ```bash
 git clone https://github.com/otuyacloud/deployable-tutor.git
 cd deployable-tutor
-./install.sh --claude  # or --codex / --opencode / --gemini
+./install.sh --claude  # or --codex / --opencode / --agy
 ```
 
 On the learner's first use, run:
@@ -22,7 +22,7 @@ python3 bin/deployable_lms.py --login
 
 The connector opens the Cloudflare Access login flow, then asks for the learner's Frappe LMS email and password. The browser authentication is the one unavoidable step: it proves that this learner is allowed to use the course.
 
-Then use `/deployable` in Claude Code, OpenCode, or Gemini CLI. Codex discovers the installed `deployable` skill; invoke it by asking for the Deployable course or using `$deployable`. The tutor acts as a lesson companion: it retrieves the existing LMS lesson, follows it from top to bottom, pauses for exercises and checkpoints, and helps without creating a separate curriculum.
+Then use `/deployable` in Claude Code or OpenCode. In agy, start an interactive `agy` session and run `/deployable` inside that session. Codex discovers the installed `deployable` skill; invoke it by asking for the Deployable course or using `$deployable`. The tutor acts as a lesson companion: it retrieves the existing LMS lesson, follows it from top to bottom, pauses for exercises and checkpoints, and helps without creating a separate curriculum.
 
 When a lesson produces files, the tutor uses an existing student coursework workspace or creates `$HOME/deployable-coursework`. It creates week directories only as they are needed, keeps coursework separate from this connector repository, and validates the learner's actual files and command output against the LMS checkpoint. Frappe remains the source of truth for lessons and completion.
 

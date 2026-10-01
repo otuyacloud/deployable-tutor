@@ -21,12 +21,11 @@ def adapter(runtime: str, tool: str = "claude") -> bytes:
         f"{runtime}\n"
         "<!-- DEPLOYABLE_RUNTIME_END -->\n"
     )
-    if tool == "gemini":
-        return f'description = "Test adapter"\n\nprompt = """\n{body}"""\n'.encode()
     frontmatters = {
         "claude": '---\ndescription: Test adapter\nargument-hint: "[week N lesson M | week N overview]"\n---\n',
         "codex": "---\nname: deployable\ndescription: Test adapter\n---\n",
         "opencode": "---\ndescription: Test adapter\n---\n",
+        "agy": "---\nname: deployable\ndescription: Test adapter\n---\n",
     }
     return f"{frontmatters[tool]}{body}".encode()
 
@@ -96,19 +95,6 @@ class UpdaterTests(unittest.TestCase):
         with self.assertRaises(SyntaxError):
             deployable_update.validate_payload("claude", adapter("valid runtime " * 20), b"def broken(:\n")
 
-    def test_invalid_gemini_toml_is_rejected(self):
-        invalid = adapter("valid runtime " * 20, tool="gemini").replace(b'description = "Test adapter"', b'description = "Test adapter')
-        with self.assertRaises(ValueError):
-            deployable_update.validate_payload("gemini", invalid, b"print('ok')\n")
-
-    def test_python_310_gemini_fallback_accepts_only_expected_envelope(self):
-        valid = (Path(__file__).resolve().parents[1] / "gemini" / "deployable.toml").read_bytes()
-        invalid = valid.replace(b"\nprompt =", b"\nextra = true\n\nprompt =", 1)
-        with patch.object(deployable_update, "tomllib", None):
-            deployable_update.validate_payload("gemini", valid, b"print('ok')\n")
-            with self.assertRaises(ValueError):
-                deployable_update.validate_payload("gemini", invalid, b"print('ok')\n")
-
     def test_broken_bootstrap_is_rejected(self):
         broken = adapter("valid runtime " * 20).replace(b"deployable_update.py", b"missing_updater.py")
         with self.assertRaises(ValueError):
@@ -135,16 +121,9 @@ class UpdaterTests(unittest.TestCase):
 
     def test_wrong_tool_updater_path_is_rejected(self):
         real = (Path(__file__).resolve().parents[1] / "claude" / "deployable.md").read_bytes()
-        broken = real.replace(b"$HOME/.claude/scripts", b"$HOME/.gemini/scripts", 1)
+        broken = real.replace(b"$HOME/.claude/scripts", b"$HOME/.config/opencode/scripts", 1)
         with self.assertRaises(ValueError):
             deployable_update.validate_payload("claude", broken, b"print('ok')\n")
-
-    def test_python_310_fallback_rejects_unclosed_gemini_description(self):
-        real = (Path(__file__).resolve().parents[1] / "gemini" / "deployable.toml").read_bytes()
-        broken = real.replace(b'top to bottom"', b"top to bottom", 1)
-        with patch.object(deployable_update, "tomllib", None):
-            with self.assertRaises(ValueError):
-                deployable_update.validate_payload("gemini", broken, b"print('ok')\n")
 
     def test_noop_commit_preserves_previous_generation(self):
         with tempfile.TemporaryDirectory() as directory:
