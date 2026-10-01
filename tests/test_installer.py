@@ -14,7 +14,11 @@ class InstallerTests(unittest.TestCase):
             "claude": ("--claude", ".claude/commands/deployable.md", ".claude/scripts"),
             "codex": ("--codex", ".codex/skills/deployable/SKILL.md", ".codex/skills/deployable/scripts"),
             "opencode": ("--opencode", ".config/opencode/commands/deployable.md", ".config/opencode/scripts"),
-            "gemini": ("--gemini", ".gemini/commands/deployable.toml", ".gemini/scripts"),
+            "agy": (
+                "--agy",
+                ".gemini/config/plugins/deployable/skills/deployable/SKILL.md",
+                ".gemini/config/plugins/deployable/skills/deployable/scripts",
+            ),
         }
         for tool, (mode, adapter_relative, scripts_relative) in layouts.items():
             with self.subTest(tool=tool), tempfile.TemporaryDirectory() as directory:
